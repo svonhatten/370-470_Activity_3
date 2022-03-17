@@ -1,0 +1,10 @@
+# Node
+javascript/node_modules/
+javascript/package-lock.json
+
+# Project
+*.csv
+
+# JetBrains
+.idea/
+*.iml

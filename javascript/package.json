@@ -1,0 +1,16 @@
+{
+  "name": "370-470_activity_3",
+  "version": "1.0.0",
+  "description": "",
+  "main": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "issues-csv": "node src/cli/issues.js"
+  },
+  "author": "",
+  "license": "",
+  "dependencies": {
+    "@octokit/core": "^3.6.0",
+    "commander": "^9.0.0"
+  }
+}
