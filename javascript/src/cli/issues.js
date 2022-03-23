@@ -56,8 +56,11 @@ async function generate_csv() {
 function formatData(data) {
     let csv = "";
     for (let i = 0; i < data.length; i++) {
-        for (const [key, action] of keys.entries()) {
-            csv += (data[i][key]) ? (action) ? `${action(data[i][key])},` : `${data[i][key]},` : `${action(null)},`;
+        if (!data[i]["pull_request"]) {     // Ignore pull requests
+            for (const [key, action] of keys.entries()) {
+                csv += (data[i][key]) ? (action) ? `${action(data[i][key])},` : `${data[i][key]},` : `${data[i][key]},`;
+            }
+            csv = csv.slice(0, -1) + "\n";
         }
         csv = csv.slice(0, -1) + "\n";
     }
