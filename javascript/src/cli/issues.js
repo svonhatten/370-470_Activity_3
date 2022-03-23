@@ -42,6 +42,7 @@ async function generate_csv() {
 
     while (res.status !== 404 && res.data.length !== 0) {
         res = await octokit.request(`GET /repos/${options.repo}/issues`, {
+            state: "all",
             per_page: 100, // GitHub API max items per page is 100
             page
         });
