@@ -72,7 +72,7 @@ function formatDate(data) {
 }
 
 function arraySize(array) {
-    return (array && array.size) ? array.length :  0;
+    return (array && array.size) ? array.size :  0;
 }
 
 function handleLabels(labels) {
