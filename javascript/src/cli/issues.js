@@ -32,7 +32,6 @@ let csv = "";
 for (let entry of keys.entries()) csv += `${entry[0]},`;
 csv = csv.slice(0, -1) + "\n"; // Remove the last comma and add new line
 
-
 async function generate_csv() {
     let res = [];
     let page = 1;
@@ -42,8 +41,7 @@ async function generate_csv() {
 
     while (res.status !== 404 && res.data.length !== 0) {
         res = await octokit.request(`GET /repos/${options.repo}/issues`, {
-            state: "all",
-            per_page: 100, // GitHub API max items per page is 100
+            state: "all", per_page: 100, // GitHub API max items per page is 100
             page
         });
 
@@ -62,7 +60,6 @@ function formatData(data) {
             }
             csv = csv.slice(0, -1) + "\n";
         }
-        csv = csv.slice(0, -1) + "\n";
     }
     return csv;
 }
@@ -75,8 +72,7 @@ function formatDate(data) {
 }
 
 function arraySize(array) {
-    if (array && array.size) return array.length;
-    else return 0;
+    return (array && array.size) ? array.length :  0;
 }
 
 function handleLabels(labels) {
@@ -87,7 +83,6 @@ function handleLabels(labels) {
 generate_csv().then(csv => {
     console.log(`Writing to ${options.output}`);
     fs.writeFile(options.output, csv, err => {
-        if (err) throw err;
-        else console.log(`${options.output} written successfully.`);
+        if (err) throw err; else console.log(`${options.output} written successfully.`);
     });
 }).catch(console.error);
