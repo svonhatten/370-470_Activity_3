@@ -41,7 +41,7 @@ async function generate_csv() {
 
     while (res.status !== 404 && res.data.length !== 0) {
         res = await octokit.request(`GET /repos/${options.repo}/issues`, {
-            state: "all", per_page: 100, // GitHub API max items per page is 100
+            state: "all", per_page: 100, // GitHub's API max items per page is 100
             page
         });
 
@@ -56,7 +56,7 @@ function formatData(data) {
     for (let i = 0; i < data.length; i++) {
         if (!data[i]["pull_request"]) {     // Ignore pull requests
             for (const [key, action] of keys.entries()) {
-                csv += (data[i][key]) ? (action) ? `${action(data[i][key])},` : `${data[i][key]},` : `${data[i][key]},`;
+                csv += (data[i][key] && action) ? `${action(data[i][key])},` : `${data[i][key]},`;
             }
             csv = csv.slice(0, -1) + "\n";
         }
@@ -72,7 +72,7 @@ function formatDate(data) {
 }
 
 function arraySize(array) {
-    return (array && array.size) ? array.size :  0;
+    return (array && array.size) ? array.size : 0;
 }
 
 function handleLabels(labels) {
