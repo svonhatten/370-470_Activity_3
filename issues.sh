@@ -1,5 +1,3 @@
 #!/usr/bin/env bash
-npm --prefix javascript install > /dev/null
+cd javascript/ && npm install > /dev/null && cd ../
 node javascript/src/cli/issues.js "$@"
-
-
