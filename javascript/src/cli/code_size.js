@@ -68,7 +68,9 @@ function formatData(data) {
     let csv = "";
     for (let i = 0; i < data.tree.length; i++) {
         for (const [key, action] of keys.entries()) {
-            csv += (data.tree[i][key] && action) ? `${action(data.tree[i][key])},` : `${data.tree[i][key]},`;
+            if (data.tree[i]["size"] !== undefined) {
+                csv += (data.tree[i][key] && action) ? `${action(data.tree[i][key])},` : `${data.tree[i][key]},`;
+            }
         }
         csv = csv.slice(0, -1) + "\n";
     }
