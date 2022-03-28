@@ -34,9 +34,6 @@ async function generate_csv() {
     let page = 1;
     let sha = [];
 
-    res.status = 200; // Dirty trick to get the loop going
-    res.data = [1];
-
     res_branches.status = 200;
     res_branches.data = [1];
 
@@ -51,26 +48,17 @@ async function generate_csv() {
         page++;
         if (res_branches.status !== 404) {
             for (let i = 0; i < res_branches.data.length; i++) {
-                sha.push(res_branches[i].data.commit.sha)
+                sha.push(res_branches.data[i].sha)
             }
         }
     }
 
     // commits for loop
     for (let commit of sha) {
-        // iterate over trees
-        while (res.status !== 404 && res.data.length !== 0) {
-            // GET each commit's trees
-            res = await octokit.request(`GET /repos/${options.repo}/git/trees/${commit}`, {
-                tree_sha: commit,
-                recursive: true,
-                per_page: 100,
-                page
-            });
-
-            page++;
-            if (res.status !== 404) csv += formatData(res.data);
-        }
+        res = await octokit.request(`GET /repos/${options.repo}/git/trees/${commit}`, {
+            recursive: true,
+        });
+        if (res.status !== 404) csv += formatData(res.data);
     }
 
     return csv;
@@ -78,9 +66,9 @@ async function generate_csv() {
 
 function formatData(data) {
     let csv = "";
-    for (let i = 0; i < data.length; i++) {
+    for (let i = 0; i < data.tree.length; i++) {
         for (const [key, action] of keys.entries()) {
-            csv += (data[i].tree[key] && action) ? `${action(data[i].tree[key])},` : `${data[i].tree[key]},`;
+            csv += (data.tree[i][key] && action) ? `${action(data.tree[i][key])},` : `${data.tree[i][key]},`;
         }
         csv = csv.slice(0, -1) + "\n";
     }
