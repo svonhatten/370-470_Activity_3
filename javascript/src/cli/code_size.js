@@ -43,7 +43,7 @@ async function generate_csv() {
     // commits
     while (res_branches.status !== 404 && res_branches.data.length !== 0) {
         // GET each commit's trees
-        res_branches = await octokit.request(`GET /repos/${options.owner}/${options.repo}/commits`, {
+        res_branches = await octokit.request(`GET /repos/${options.repo}/commits`, {
             per_page: 100,
             page
         });
@@ -61,7 +61,7 @@ async function generate_csv() {
         // iterate over trees
         while (res.status !== 404 && res.data.length !== 0) {
             // GET each commit's trees
-            res = await octokit.request(`GET /repos/${options.owner}/${options.repo}/git/trees/${commit}`, {
+            res = await octokit.request(`GET /repos/${options.repo}/git/trees/${commit}`, {
                 tree_sha: commit,
                 recursive: true,
                 per_page: 100,
