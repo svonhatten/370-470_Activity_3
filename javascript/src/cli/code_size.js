@@ -19,6 +19,7 @@ const octokit = new Octokit({auth: options.token});
 // null means it will simply add the string value to the csv field
 
 const keys = new Map();
+keys.set("sha", null);
 keys.set("size", null);
 keys.set("path", null);
 
