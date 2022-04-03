@@ -2,7 +2,6 @@ const fs = require("fs");
 const commander = require("commander");
 const RequestBuilder = require("../lib/RequestBuilder");
 const Formatter = require("../lib/Formatter");
-const path = require("path");
 
 // Setup process
 commander.version("1.0.0", "-v, --version")
@@ -30,8 +29,7 @@ builder.submit().then(res => {
     keys.set("labels", handleLabels);
 
     res.toCsvFile(keys, options.output, err => {
-        if (err) throw err;
-        else console.log(`Wrote CSV to ${options.output}`);
+        if (err) throw err; else console.log(`Wrote CSV to ${options.output}`);
     })
 });
 
