@@ -59,9 +59,50 @@ async function generate_csv() {
         res = await octokit.request(`GET /repos/${options.repo}/git/trees/${commit}`, {
             recursive: true,
         });
-        if (res.status !== 404) csv += formatData(res.data);
+        
+        if (res.status !== 404) csv += newFormatData(uniqueSha(res.data));
     }
 
+    return csv;
+}
+
+// function to parse sha values
+let shaArray = [];
+let uniqueData = [];
+function uniqueSha(data) {
+    for (let j = 0; j < data.tree.length; j++) {
+        shaArray.push(data.tree[j]);
+        /*for (const [key, action] of keys.entries()) {
+            if (!uniqueData.includes(data.tree[j]["sha"])) {
+                uniqueData.push(data.tree[j]);
+            }
+            if (uniqueData[i]["size"] !== undefined) {
+                csv += (uniqueData[i][key] && action) ? `${action(uniqueData[i][key])},` : `${uniqueData[i][key]},`;
+            }
+        } */
+        //shaArray.forEach((item) => {
+            //if (!uniqueData.includes(item)) {
+                //uniqueData.push(item);
+            //}
+        //})
+    }
+    uniqueData = shaArray.filter(function (currentElement) {
+        return currentElement.sha
+    })
+    console.log(uniqueData);
+    return uniqueData;
+}
+
+function newFormatData(uniqueData) {
+    let csv = "";
+    for (let i = 0; i < uniqueData.length; i++) {
+        for (const [key, action] of keys.entries()) {
+            if (uniqueData[i]["size"] !== undefined) {
+                csv += (uniqueData[i][key] && action) ? `${action(uniqueData[i][key])},` : `${uniqueData[i][key]},`;
+            }
+        }
+        csv = csv.slice(0, -1) + "\n";
+    }
     return csv;
 }
 
