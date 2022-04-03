@@ -20,7 +20,6 @@ builder.exclude("pull_request");
 builder.multiPage(true);
 builder.submit().then(res => {
     const keys = new Map();
-    keys.set("id", null);
     keys.set("commit", formatCommit);
     keys.set("committer", formatCommitter);
     keys.set("author", formatAuthor);
