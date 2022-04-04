@@ -34,6 +34,7 @@ async function generate_csv() {
     let res_branches = [];
     let page = 1;
     let sha = [];
+    let uniqueData = [];
 
     res_branches.status = 200;
     res_branches.data = [1];
@@ -59,38 +60,30 @@ async function generate_csv() {
         res = await octokit.request(`GET /repos/${options.repo}/git/trees/${commit}`, {
             recursive: true,
         });
-        
-        if (res.status !== 404) csv += newFormatData(uniqueSha(res.data));
+        newArray(res.data);
     }
+
+    uniqueData = getUnique(shaArray, "sha");
+    console.log(uniqueData);
+
+    if (res.status !== 404) csv += newFormatData(uniqueData);
 
     return csv;
 }
 
-// function to parse sha values
+// Add data to new array
 let shaArray = [];
-let uniqueData = [];
-function uniqueSha(data) {
+function newArray(data) {
     for (let j = 0; j < data.tree.length; j++) {
         shaArray.push(data.tree[j]);
-        /*for (const [key, action] of keys.entries()) {
-            if (!uniqueData.includes(data.tree[j]["sha"])) {
-                uniqueData.push(data.tree[j]);
-            }
-            if (uniqueData[i]["size"] !== undefined) {
-                csv += (uniqueData[i][key] && action) ? `${action(uniqueData[i][key])},` : `${uniqueData[i][key]},`;
-            }
-        } */
-        //shaArray.forEach((item) => {
-            //if (!uniqueData.includes(item)) {
-                //uniqueData.push(item);
-            //}
-        //})
     }
-    uniqueData = shaArray.filter(function (currentElement) {
-        return currentElement.sha
-    })
-    console.log(uniqueData);
-    return uniqueData;
+
+    return shaArray;
+}
+
+// Return new array with unique data
+function getUnique(arr, key) {
+    return [...new Map(arr.map(item => [item[key], item])).values()]
 }
 
 function newFormatData(uniqueData) {
