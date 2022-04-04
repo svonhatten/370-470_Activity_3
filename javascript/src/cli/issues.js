@@ -29,11 +29,43 @@ builder.submit().then(res => {
     keys.set("labels", handleLabels);
 
     res.toCsvFile(keys, options.output, err => {
-        if (err) throw err; else console.log(`Wrote CSV to ${options.output}`);
-    })
+        if (err) throw err; else console.log(`Wrote issues CSV to ${options.output}`);
+        generateLabelsCSV(res.data, (err, file) => {
+            if (err) throw err; else console.log(`Wrote labels CSV to ${file}`);
+        });
+    });
 });
 
+function generateLabelsCSV(data, callback) {
+    const labels = new Map();
+
+    for (let row of data) {
+        for (let label of row.labels) {
+            if (labels.has(label.name)) labels.set(label.name, labels.get(label.name) + 1); else labels.set(label.name, 1);
+        }
+    }
+
+    let csv = "name,occurrences\n"
+    for(let [name, occurrences] of labels) {
+        csv += `${name},${occurrences}\n`
+    }
+
+    let fileParts = options.output.split(".");
+    let ext = "";
+    if (fileParts.length > 1) ext = `.${fileParts[1]}`;
+    let name = `${fileParts[0]}-labels${ext}`;
+
+    fs.writeFile(name, csv, err => {
+        if (err) callback(err); else callback(null, name);
+    });
+}
+
+
 function handleLabels(labels) {
-    // TODO: Handle label array
-    return "label data (TODO)";
+    let string = "";
+    for (let label of labels) {
+        string += `${label.name}; `
+    }
+    string = string.slice(0, -2);
+    return string;
 }
