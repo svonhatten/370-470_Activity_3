@@ -99,19 +99,6 @@ function newFormatData(uniqueData) {
     return csv;
 }
 
-function formatData(data) {
-    let csv = "";
-    for (let i = 0; i < data.tree.length; i++) {
-        for (const [key, action] of keys.entries()) {
-            if (data.tree[i]["size"] !== undefined) {
-                csv += (data.tree[i][key] && action) ? `${action(data.tree[i][key])},` : `${data.tree[i][key]},`;
-            }
-        }
-        csv = csv.slice(0, -1) + "\n";
-    }
-    return csv;
-}
-
 generate_csv().then(csv => {
     console.log(`Writing to ${options.output}`);
     fs.writeFile(options.output, csv, err => {
