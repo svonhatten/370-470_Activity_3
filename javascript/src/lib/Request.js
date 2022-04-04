@@ -79,7 +79,7 @@ module.exports = class Request {
 
         for (let row of this.data) {
             for (const [key, action] of keys.entries()) {
-                csv += (row[key] && action) ? `${action(row[key])},` : `${row[key]},`;
+                csv += (row[key]) ? action ? `${action(row[key])},` : `${row[key]},` : ",";
             }
             csv = csv.slice(0, -1) + "\n";
         }
