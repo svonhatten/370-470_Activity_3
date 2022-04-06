@@ -7,7 +7,6 @@ module.exports = class RequestBuilder {
     _excludes = [];
     _required = [];
     _dataPath;
-    _uniqueKey;
     _opts = [];
     _multiPage;
 
@@ -48,7 +47,7 @@ module.exports = class RequestBuilder {
     }
 
     async submit() {
-        return new Request(this._octokit, this._opts, this.repo, this.scope, this._multiPage, this._dataPath, this._uniqueKey, this._required, this._excludes).submit();
+        return new Request(this._octokit, this._opts, this.repo, this.scope, this._multiPage, this._dataPath, this._required, this._excludes).submit();
     }
 }
 
