@@ -6,6 +6,8 @@ const Formatter = require("../lib/Formatter");
 
 // Setup process
 
+let formatter = new Formatter();
+
 commander.version("1.0.0", "-v, --version")
     .requiredOption("-t, --token <value>", "Sets the GitHub access token to use")
     .requiredOption("-r, --repo <value>", "Sets the GitHub repository (obsproject/obs-studio)")
@@ -23,8 +25,8 @@ builder.submit().then(res => {
     keys.set("committer", formatCommit);
     keys.set("tree", formatTree);
 
-    // console.log(res.data); // Print data
-    // console.log(res.toCsv(keys)) // Print CSV
+    //console.log(res.data); // Print data
+    //console.log(res.toCsv(keys)) // Print CSV
 
     res.toCsvFile(keys, options.output, err => {
         if (err) throw err; else console.log(`Wrote CSV to ${options.output}`);
@@ -33,7 +35,11 @@ builder.submit().then(res => {
 
 function formatCommit(data) {
 
+
+    return formatter.formatDate(data.date);
+
 }
+
 
 function formatTree(data) {
     return data.url;
