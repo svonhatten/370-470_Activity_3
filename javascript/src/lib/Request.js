@@ -8,6 +8,7 @@ module.exports = class Request {
     _excludes;
     _required;
     _dataPath;
+    _uniqueKey;
     data = [];
 
     /**
@@ -69,8 +70,8 @@ module.exports = class Request {
     }
 
     _pushData(data) {
-        if (Symbol.iterator in Object(data)) for (let row of data) this._pushRow(row);
-        else this._pushRow(data);
+        if (this._dataPath && data[this._dataPath]) data = data[this._dataPath];
+        if (Symbol.iterator in Object(data)) for (let row of data) this._pushRow(row); else this._pushRow(data);
     }
 
     _pushRow(row) {
@@ -88,7 +89,6 @@ module.exports = class Request {
 
     toHeaderlessCsv(keys) {
         let csv = "";
-
         row_loop:
         for (let row of this.data) {
             let rowString = "";
