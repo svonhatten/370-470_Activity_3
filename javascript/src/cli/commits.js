@@ -28,16 +28,13 @@ builder.submit().then(res => {
     //console.log(res.data); // Print data
     //console.log(res.toCsv(keys)) // Print CSV
 
-    res.toCsvFile(keys, options.output, err => {
+    fs.writeFile(options.output, res.toCsv(keys).replace("committer", "date"), err => {
         if (err) throw err; else console.log(`Wrote CSV to ${options.output}`);
     });
 });
 
 function formatCommit(data) {
-
-
     return formatter.formatDate(data.date);
-
 }
 
 
