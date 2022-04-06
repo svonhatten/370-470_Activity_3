@@ -90,19 +90,17 @@ module.exports = class Request {
     toHeaderlessCsv(keys) {
         let csv = "";
         row_loop:
-        for (let row of this.data) {
-            let rowString = "";
-
-            for (const [key, action] of keys.entries()) {
-                if (!row[key]) {
-                    if (this._required.indexOf(key) > -1) continue row_loop;
-                    else rowString += ",";
-                } else {
-                    rowString += action ? `${action(row[key])},` : `${row[key]},`
+            for (let row of this.data) {
+                let rowString = "";
+                for (let [key, action] of keys.entries()) {
+                    if (row[key]) {
+                        rowString += action ? `${action(row[key])},` : `${row[key]},`
+                    } else {
+                        if (this._required.indexOf(key) > -1) continue row_loop; else rowString += ",";
+                    }
                 }
+                csv += rowString.slice(0, -1) + "\n";
             }
-            csv += rowString.slice(0, -1) + "\n";
-        }
         return csv;
     }
 
