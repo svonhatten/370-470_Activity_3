@@ -8,7 +8,6 @@ module.exports = class Request {
     _excludes;
     _required;
     _dataPath;
-    _uniqueKey;
     data = [];
 
     /**
@@ -23,16 +22,16 @@ module.exports = class Request {
      * @param required {String[]}
      * @param excludes {String[]}
      */
-    constructor(octokit, opts, repo, scope, multiPage, dataPath, uniqueKey, required, excludes) {
+    constructor(octokit, opts, repo, scope, multiPage, dataPath, required, excludes) {
         this._octokit = octokit;
         this._opts = opts;
         this._repo = repo;
         this._scope = scope;
         this._multiPage = multiPage;
         this._dataPath = dataPath;
-        this._uniqueKey = uniqueKey;
         this._required = required;
         this._excludes = excludes;
+        this._uniqueLocations = new Map();
     }
 
     async submit() {
@@ -75,9 +74,11 @@ module.exports = class Request {
     }
 
     _pushRow(row) {
-        if (this._dataPath) row = row[this._dataPath];
-        for (const exclude of this._excludes) if (row[exclude]) return;
-        this.data.push(row);
+        if (row && typeof row !== undefined) {
+            if (this._dataPath && row[this._dataPath]) row = row[this._dataPath];
+            for (const exclude of this._excludes) if (row[exclude]) return;
+            this.data.push(row);
+        }
     }
 
     csvHeader(keys) {
