@@ -5,23 +5,33 @@ module.exports = class Request {
     _scope;
     _opts = [];
     _multiPage;
+    _excludes;
+    _required;
+    _dataPath;
+    _uniqueKey;
     data = [];
 
     /**
      * Constructor
      * @param octokit {octokit}
-     * @param opts {[]}
+     * @param opts {String[]}
      * @param repo {string}
-     * @param scope {[]}
+     * @param scope {String[]}
      * @param multiPage {boolean}
-     * @param excludes {[]}
+     * @param dataPath {string}
+     * @param uniqueKey {string}
+     * @param required {String[]}
+     * @param excludes {String[]}
      */
-    constructor(octokit, opts, repo, scope, multiPage, excludes) {
+    constructor(octokit, opts, repo, scope, multiPage, dataPath, uniqueKey, required, excludes) {
         this._octokit = octokit;
         this._opts = opts;
         this._repo = repo;
         this._scope = scope;
         this._multiPage = multiPage;
+        this._dataPath = dataPath;
+        this._uniqueKey = uniqueKey;
+        this._required = required;
         this._excludes = excludes;
     }
 
@@ -38,12 +48,13 @@ module.exports = class Request {
                         break;
                     }
                 }
+                resolve(this);
             } else {
-                this._req(null).then(res => {
+                await this._req(null).then(res => {
                     this._pushData(res.data);
                 }).catch(console.error);
+                resolve(this);
             }
-            resolve(this);
         });
     }
 
@@ -59,13 +70,39 @@ module.exports = class Request {
     }
 
     _pushData(data) {
-        row_loop:
-            for (let row of data) {
-                for (const exclude of this._excludes) if (row[exclude]) continue row_loop;
-                this.data.push(row);
-            }
+        if (this._dataPath && data[this._dataPath]) data = data[this._dataPath];
+        if (Symbol.iterator in Object(data)) for (let row of data) this._pushRow(row); else this._pushRow(data);
     }
 
+    _pushRow(row) {
+        if (this._dataPath) row = row[this._dataPath];
+        for (const exclude of this._excludes) if (row[exclude]) return;
+        this.data.push(row);
+    }
+
+    csvHeader(keys) {
+        let csv = "";
+        for (let entry of keys.entries()) csv += `${entry[0]},`;
+        csv = csv.slice(0, -1) + "\n"; // Remove the last comma and add new line
+        return csv;
+    }
+
+    toHeaderlessCsv(keys) {
+        let csv = "";
+        row_loop:
+            for (let row of this.data) {
+                let rowString = "";
+                for (let [key, action] of keys.entries()) {
+                    if (row[key]) {
+                        rowString += action ? `${action(row[key])},` : `${row[key]},`
+                    } else {
+                        if (this._required.indexOf(key) > -1) continue row_loop; else rowString += ",";
+                    }
+                }
+                csv += rowString.slice(0, -1) + "\n";
+            }
+        return csv;
+    }
 
     /**
      * Creates a CSV String containing all data
@@ -73,16 +110,8 @@ module.exports = class Request {
      * @returns {string}
      */
     toCsv(keys) {
-        let csv = "";
-        for (let entry of keys.entries()) csv += `${entry[0]},`;
-        csv = csv.slice(0, -1) + "\n"; // Remove the last comma and add new line
-
-        for (let row of this.data) {
-            for (const [key, action] of keys.entries()) {
-                csv += (row[key]) ? action ? `${action(row[key])},` : `${row[key]},` : ",";
-            }
-            csv = csv.slice(0, -1) + "\n";
-        }
+        let csv = this.csvHeader(keys);
+        csv += this.toHeaderlessCsv(keys);
         return csv;
     }
 
@@ -94,8 +123,7 @@ module.exports = class Request {
      */
     toCsvFile(keys, path, callback) {
         fs.writeFile(path, this.toCsv(keys), err => {
-            if (err) callback(err);
-            else callback(null);
+            if (err) callback(err); else callback(null);
         });
     }
 }

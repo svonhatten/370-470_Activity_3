@@ -6,6 +6,8 @@ const Formatter = require("../lib/Formatter");
 
 // Setup process
 
+let formatter = new Formatter();
+
 commander.version("1.0.0", "-v, --version")
     .requiredOption("-t, --token <value>", "Sets the GitHub access token to use")
     .requiredOption("-r, --repo <value>", "Sets the GitHub repository (obsproject/obs-studio)")
@@ -16,37 +18,26 @@ const options = commander.opts();
 
 let builder = new RequestBuilder(options.token, options.repo, "commits");
 builder.option("state", "all");
-builder.exclude("pull_request");
+builder.dataPath("commit");
 builder.multiPage(true);
 builder.submit().then(res => {
     const keys = new Map();
-    keys.set("commit", formatCommit);
-    keys.set("committer", formatCommitter);
-    keys.set("author", formatAuthor);
+    keys.set("committer", formatCommit);
+    keys.set("tree", formatTree);
 
-    // console.log(res.data); // Print data
-    // console.log(res.toCsv(keys)) // Print CSV
+    //console.log(res.data); // Print data
+    //console.log(res.toCsv(keys)) // Print CSV
 
-    res.toCsvFile(keys, options.output, err => {
+    fs.writeFile(options.output, res.toCsv(keys).replace("committer", "date"), err => {
         if (err) throw err; else console.log(`Wrote CSV to ${options.output}`);
-    })
+    });
 });
 
 function formatCommit(data) {
-    // TODO
+    return formatter.formatDate(data.date);
 }
 
-function formatCommitter(data) {
-    // TODO
-}
 
-function formatAuthor(data) {
-    // TODO
-}
-
-function formatURL(data) {
-    if (data) {
-        let url = new URL(data);
-        return url;
-    } else return "null"
+function formatTree(data) {
+    return data.url;
 }

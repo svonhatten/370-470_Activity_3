@@ -5,6 +5,9 @@ module.exports = class RequestBuilder {
     scope;
     _octokit;
     _excludes = [];
+    _required = [];
+    _dataPath;
+    _uniqueKey;
     _opts = [];
     _multiPage;
 
@@ -28,12 +31,24 @@ module.exports = class RequestBuilder {
         this._excludes.push(key);
     }
 
+    required(key) {
+        this._required.push(key);
+    }
+
+    dataPath(path) {
+        this._dataPath = path;
+    }
+
+    uniqueKey(key) {
+        this._uniqueKey = key;
+    }
+
     multiPage(bool) {
         this._multiPage = bool;
     }
 
     async submit() {
-        return new Request(this._octokit, this._opts, this.repo, this.scope, this._multiPage, this._excludes).submit();
+        return new Request(this._octokit, this._opts, this.repo, this.scope, this._multiPage, this._dataPath, this._uniqueKey, this._required, this._excludes).submit();
     }
 }
 
